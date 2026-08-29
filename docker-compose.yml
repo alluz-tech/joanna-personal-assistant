@@ -2,7 +2,9 @@ services:
   app:
     build: .
     ports:
-      - "8000:8000"
+      # Docker chooses an available ephemeral host port and forwards it to Uvicorn.
+      # Binding to loopback keeps the app private to this machine.
+      - "127.0.0.1::8000"
     env_file: .env
     volumes:
       - ./data:/app/data
