@@ -27,6 +27,29 @@ class ChatRequest(BaseModel):
     session_id: str
 
 
+class EventPayload(BaseModel):
+    title: str
+    start: str
+    end: str
+    description: str | None = None
+    location: str | None = None
+    attendees: list[str] = []
+
+
+class EventPatch(BaseModel):
+    title: str | None = None
+    start: str | None = None
+    end: str | None = None
+    description: str | None = None
+    location: str | None = None
+    attendees: list[str] | None = None
+
+
+def require_connected() -> None:
+    if not calendar.is_connected():
+        raise HTTPException(400, "Conecte seu Google Calendar antes de usar a agenda.")
+
+
 def is_confirmation(text: str) -> bool:
     return text.strip().lower() in {"sim", "s", "confirmo", "pode excluir", "pode apagar", "confirmar"}
 
@@ -43,6 +66,58 @@ def index():
 @app.get("/api/auth-status")
 def auth_status():
     return {"connected": calendar.is_connected()}
+
+
+@app.get("/api/config")
+def config():
+    return {"timezone": calendar.timezone, "connected": calendar.is_connected()}
+
+
+@app.get("/api/events")
+def list_events(start: str, end: str, q: str | None = None):
+    require_connected()
+    try:
+        return {"events": calendar.get_events(start, end, q)}
+    except Exception as exc:
+        raise HTTPException(502, f"Não consegui carregar os eventos: {exc}") from exc
+
+
+@app.post("/api/events", status_code=201)
+def add_event(body: EventPayload):
+    require_connected()
+    try:
+        return calendar.create_event(
+            body.title, body.start, body.end, body.description, body.location, body.attendees or None
+        )
+    except Exception as exc:
+        raise HTTPException(502, f"Não consegui criar o evento: {exc}") from exc
+
+
+@app.patch("/api/events/{event_id}")
+def edit_event(event_id: str, body: EventPatch):
+    require_connected()
+    changes = {
+        "title": body.title,
+        "description": body.description,
+        "location": body.location,
+        "start_datetime": body.start,
+        "end_datetime": body.end,
+        "attendees": body.attendees,
+    }
+    changes = {key: value for key, value in changes.items() if value is not None}
+    try:
+        return calendar.update_event(event_id, **changes)
+    except Exception as exc:
+        raise HTTPException(502, f"Não consegui atualizar o evento: {exc}") from exc
+
+
+@app.delete("/api/events/{event_id}", status_code=204)
+def remove_event(event_id: str):
+    require_connected()
+    try:
+        calendar.delete_event(event_id)
+    except Exception as exc:
+        raise HTTPException(502, f"Não consegui excluir o evento: {exc}") from exc
 
 
 @app.get("/auth/google")
