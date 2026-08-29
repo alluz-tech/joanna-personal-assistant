@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -eu
+
+port="$(docker compose port app 8000)"
+case "$port" in
+  127.0.0.1:*) printf '%s\n' "${port#127.0.0.1:}" ;;
+  localhost:*) printf '%s\n' "${port#localhost:}" ;;
+  *)
+    printf '%s\n' "Could not determine the localhost port from: $port" >&2
+    exit 1
+    ;;
+esac
