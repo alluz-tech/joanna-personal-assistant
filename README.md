@@ -4,10 +4,20 @@ Uma secretária digital simples: converse em português, consulte o Google Calen
 
 ## O que este MVP faz
 
-- Consulta eventos em tempo real (`O que eu tenho amanhã?`).
-- Cria eventos quando data e horário estão claros (`Adicione uma reunião com João amanhã às 14h`).
-- Busca, altera e solicita confirmação antes de excluir eventos.
+- **Conversa**: converse em português para consultar eventos (`O que eu tenho amanhã?`),
+  criar (`Adicione uma reunião com João amanhã às 14h`), alterar e excluir (com confirmação).
+- **Agenda**: uma segunda tela (navegação no topo, SPA) com o calendário estilo Google Agenda
+  nas visões **Mês**, **Semana** e **Dia**, filtros (busca livre, participante, faixa de horário,
+  intervalo de datas, só dia inteiro, só com participantes) e criação/edição/exclusão direto
+  pelo calendário — clique num horário para criar, num evento para editar.
 - Trata horários no fuso `America/Sao_Paulo`.
+- Interface limpa com **tema claro/escuro** (segue o sistema; botão no canto superior direito
+  alterna e memoriza a preferência) e layout responsivo para celular e tablet.
+
+### Avatar da Joanna (opcional)
+
+Coloque uma imagem em `app/static/joanna.png` (quadrada, ~256×256 ou maior) para usá-la
+como rosto da assistente na tela de Conversa. Sem o arquivo, é exibido um ícone padrão.
 
 É uma aplicação **local e para uma única conta Google**. O token OAuth é salvo localmente em `data/token.json`, fora do Git. Não há senha Google armazenada, banco de dados ou recursos fora do escopo do MVP.
 
@@ -23,7 +33,7 @@ Uma secretária digital simples: converse em português, consulte o Google Calen
 2. Em **APIs e serviços > Biblioteca**, habilite **Google Calendar API**.
 3. Em **APIs e serviços > Tela de consentimento OAuth**, configure a tela. Para teste, adicione seu e-mail em **Usuários de teste**.
 4. Em **Credenciais**, crie **ID do cliente OAuth** do tipo **Aplicativo da Web**.
-5. Em **URIs de redirecionamento autorizados**, adicione a URI indicada na sua configuração. Para Docker, siga a seção Docker abaixo para obter a porta aleatória antes de cadastrá-la.
+5. Em **URIs de redirecionamento autorizados**, adicione a URI indicada na sua configuração. Para Docker, use `http://localhost:5089/auth/google/callback`.
 6. Copie o Client ID e o Client Secret gerados.
 
 ## 3. Configurar variáveis
@@ -47,12 +57,15 @@ Abra [http://localhost:8000](http://localhost:8000), clique em **Conectar Google
 
 ## 5. Testar
 
-Após conectar o calendário, tente:
+Após conectar o calendário, na aba **Conversa** tente:
 
 - `Quais são meus compromissos de amanhã?`
 - `Adicione uma reunião com João amanhã às 14h.`
 - `Crie um compromisso chamado Dentista sexta-feira às 10h.`
 - `Apague minha reunião das 15h.` — a assistente deverá pedir confirmação antes de excluir.
+
+Na aba **Agenda**, navegue entre Mês/Semana/Dia, use os filtros da lateral e clique
+no calendário para criar ou editar um compromisso.
 
 Para executar os testes automatizados (eles não chamam APIs externas):
 
@@ -62,7 +75,7 @@ pytest
 
 ## Docker
 
-O Docker é suficiente para executar a aplicação; você não precisa instalar Python nem as dependências do projeto na máquina. A porta interna do container continua `8000`, mas o Compose escolhe automaticamente uma porta efêmera disponível no `localhost`, evitando conflitos com outros containers.
+O Docker é suficiente para executar a aplicação; você não precisa instalar Python nem as dependências do projeto na máquina. A porta interna do container continua `8000` e é publicada na porta fixa `5089` do `localhost`.
 
 1. Crie o arquivo de configuração e preencha as credenciais:
 
@@ -70,30 +83,17 @@ O Docker é suficiente para executar a aplicação; você não precisa instalar 
    cp .env.example .env
    ```
 
-2. Inicie o container em segundo plano e descubra a porta escolhida:
+2. Inicie o container em segundo plano:
 
    ```bash
    docker compose up --build -d
-   ./scripts/docker-port
    ```
 
-   O último comando imprime apenas a porta, por exemplo `49153`. Alternativamente, use `docker compose port app 8000`.
+3. Cadastre `http://localhost:5089/auth/google/callback` em **Google Cloud Console > Credenciais > URIs de redirecionamento autorizados**.
 
-3. Troque `REPLACE_WITH_DOCKER_PORT` em `.env` pela porta impressa, por exemplo:
+4. Abra [http://localhost:5089](http://localhost:5089) no navegador. Para acompanhar os logs, execute `docker compose logs -f app`; para encerrar, execute `docker compose down`.
 
-   ```dotenv
-   GOOGLE_REDIRECT_URI=http://localhost:49153/auth/google/callback
-   ```
-
-   Cadastre exatamente essa mesma URI em **Google Cloud Console > Credenciais > URIs de redirecionamento autorizados** e reinicie para aplicar a alteração:
-
-   ```bash
-   docker compose up -d --force-recreate
-   ```
-
-4. Abra `http://localhost:<porta>` no navegador. Para acompanhar os logs, execute `docker compose logs -f app`; para encerrar, execute `docker compose down`.
-
-O volume `./data` mantém o token OAuth entre reinicializações. Como a porta publicada é escolhida novamente quando o container é recriado, repita os passos 2 e 3 se o Compose atribuir uma nova porta; isso mantém o redirecionamento OAuth consistente com a URL cadastrada no Google.
+O volume `./data` mantém o token OAuth entre reinicializações.
 
 ## Limites intencionais
 

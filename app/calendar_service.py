@@ -17,6 +17,7 @@ class CalendarService:
     def __init__(self, token_path: str | None = None, timezone: str | None = None) -> None:
         self.token_path = Path(token_path or os.getenv("TOKEN_PATH", "data/token.json"))
         self.timezone = timezone or os.getenv("CALENDAR_TIMEZONE", "America/Sao_Paulo")
+        self._code_verifiers: dict[str, str] = {}
 
     @staticmethod
     def _client_config() -> dict[str, Any]:
@@ -33,10 +34,14 @@ class CalendarService:
     def authorization_url(self) -> tuple[str, str]:
         flow = Flow.from_client_config(self._client_config(), scopes=SCOPES)
         flow.redirect_uri = os.environ["GOOGLE_REDIRECT_URI"]
-        return flow.authorization_url(access_type="offline", prompt="consent", include_granted_scopes="true")
+        url, state = flow.authorization_url(access_type="offline", prompt="consent", include_granted_scopes="true")
+        if flow.code_verifier:
+            self._code_verifiers[state] = flow.code_verifier
+        return url, state
 
     def save_authorization_code(self, code: str, state: str) -> None:
-        flow = Flow.from_client_config(self._client_config(), scopes=SCOPES, state=state)
+        code_verifier = self._code_verifiers.pop(state, None)
+        flow = Flow.from_client_config(self._client_config(), scopes=SCOPES, state=state, code_verifier=code_verifier)
         flow.redirect_uri = os.environ["GOOGLE_REDIRECT_URI"]
         flow.fetch_token(code=code)
         self.token_path.parent.mkdir(parents=True, exist_ok=True)
@@ -67,28 +72,46 @@ class CalendarService:
 
     @staticmethod
     def _event_data(event: dict[str, Any]) -> dict[str, Any]:
+        start = event.get("start", {})
+        end = event.get("end", {})
         return {
             "id": event["id"],
             "title": event.get("summary", "Sem título"),
-            "start": event.get("start", {}).get("dateTime", event.get("start", {}).get("date")),
-            "end": event.get("end", {}).get("dateTime", event.get("end", {}).get("date")),
+            "start": start.get("dateTime", start.get("date")),
+            "end": end.get("dateTime", end.get("date")),
+            "all_day": "date" in start,
             "description": event.get("description"),
             "location": event.get("location"),
+            "attendees": [
+                {
+                    "email": person.get("email"),
+                    "name": person.get("displayName") or person.get("email"),
+                    "status": person.get("responseStatus", "needsAction"),
+                    "organizer": bool(person.get("organizer")),
+                    "optional": bool(person.get("optional")),
+                }
+                for person in event.get("attendees", [])
+                if person.get("email")
+            ],
             "html_link": event.get("htmlLink"),
         }
 
-    def get_events(self, start_datetime: str, end_datetime: str) -> list[dict[str, Any]]:
-        response = self._api().events().list(
+    def get_events(self, start_datetime: str, end_datetime: str, query: str | None = None) -> list[dict[str, Any]]:
+        params: dict[str, Any] = dict(
             calendarId="primary", timeMin=start_datetime, timeMax=end_datetime,
-            singleEvents=True, orderBy="startTime",
-        ).execute()
+            singleEvents=True, orderBy="startTime", maxResults=2500,
+        )
+        if query:
+            params["q"] = query
+        response = self._api().events().list(**params).execute()
         return [self._event_data(event) for event in response.get("items", [])]
 
     def get_event(self, event_id: str) -> dict[str, Any]:
         return self._event_data(self._api().events().get(calendarId="primary", eventId=event_id).execute())
 
     def create_event(self, title: str, start_datetime: str, end_datetime: str,
-                     description: str | None = None, location: str | None = None) -> dict[str, Any]:
+                     description: str | None = None, location: str | None = None,
+                     attendees: list[str] | None = None) -> dict[str, Any]:
         body: dict[str, Any] = {
             "summary": title,
             "start": {"dateTime": start_datetime, "timeZone": self.timezone},
@@ -98,14 +121,18 @@ class CalendarService:
             body["description"] = description
         if location:
             body["location"] = location
+        if attendees:
+            body["attendees"] = [{"email": email} for email in attendees]
         return self._event_data(self._api().events().insert(calendarId="primary", body=body).execute())
 
-    def update_event(self, event_id: str, **changes: str | None) -> dict[str, Any]:
+    def update_event(self, event_id: str, **changes: Any) -> dict[str, Any]:
         current = self._api().events().get(calendarId="primary", eventId=event_id).execute()
         mapping = {"title": "summary", "description": "description", "location": "location"}
         for name, field in mapping.items():
             if changes.get(name) is not None:
                 current[field] = changes[name]
+        if changes.get("attendees") is not None:
+            current["attendees"] = [{"email": email} for email in changes["attendees"]]
         for name, field in (("start_datetime", "start"), ("end_datetime", "end")):
             if changes.get(name) is not None:
                 current[field] = {"dateTime": changes[name], "timeZone": self.timezone}
