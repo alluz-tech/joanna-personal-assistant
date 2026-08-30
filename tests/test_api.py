@@ -1,3 +1,4 @@
+import base64
 import os
 
 os.environ.setdefault("OPENAI_API_KEY", "test-key")
@@ -79,3 +80,72 @@ def test_delete_event(monkeypatch):
     res = client.delete("/api/events/evt-9")
     assert res.status_code == 204
     assert fake.deleted == "evt-9"
+
+
+class FakeVoice:
+    def __init__(self):
+        self.transcribed = None
+
+    def transcribe(self, audio, filename="audio.webm"):
+        self.transcribed = (audio, filename)
+        return "O que eu tenho amanhã?"
+
+    def synthesize(self, text):
+        return b"ID3-fake-mp3"
+
+
+def test_voice_transcribes_runs_agent_and_speaks(monkeypatch):
+    use_fake(monkeypatch)
+    monkeypatch.setattr(main, "voice", FakeVoice())
+    monkeypatch.setattr(
+        main.agent, "chat", lambda message, pending, prev=None: (f"Resposta para: {message}", "r1")
+    )
+    res = client.post(
+        "/api/voice",
+        data={"session_id": "s1"},
+        files={"audio": ("audio.webm", b"fake-audio-bytes", "audio/webm")},
+    )
+    assert res.status_code == 200
+    body = res.json()
+    assert body["transcript"] == "O que eu tenho amanhã?"
+    assert body["reply"] == "Resposta para: O que eu tenho amanhã?"
+    assert base64.b64decode(body["audio"]) == b"ID3-fake-mp3"
+
+
+def test_chat_remembers_context_across_turns(monkeypatch):
+    use_fake(monkeypatch)
+    main.sessions.pop("mem-1", None)
+    seen = []
+
+    def fake_chat(message, pending, previous_response_id=None):
+        seen.append(previous_response_id)
+        return f"ok {len(seen)}", f"resp-{len(seen)}"
+
+    monkeypatch.setattr(main.agent, "chat", fake_chat)
+    client.post("/api/chat", json={"message": "oi", "session_id": "mem-1"})
+    client.post("/api/chat", json={"message": "e depois?", "session_id": "mem-1"})
+    assert seen == [None, "resp-1"]
+
+
+def test_voice_requires_connection(monkeypatch):
+    fake = use_fake(monkeypatch)
+    monkeypatch.setattr(fake, "is_connected", lambda: False)
+    res = client.post(
+        "/api/voice",
+        data={"session_id": "s1"},
+        files={"audio": ("audio.webm", b"fake-audio-bytes", "audio/webm")},
+    )
+    assert res.status_code == 400
+
+
+def test_voice_rejects_empty_transcript(monkeypatch):
+    use_fake(monkeypatch)
+    empty = FakeVoice()
+    empty.transcribe = lambda audio, filename="audio.webm": ""
+    monkeypatch.setattr(main, "voice", empty)
+    res = client.post(
+        "/api/voice",
+        data={"session_id": "s1"},
+        files={"audio": ("audio.webm", b"fake-audio-bytes", "audio/webm")},
+    )
+    assert res.status_code == 422

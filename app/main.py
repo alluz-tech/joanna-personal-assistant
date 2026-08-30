@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import base64
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -13,13 +14,17 @@ load_dotenv()
 
 from app.agent import CalendarAgent
 from app.calendar_service import CalendarService
+from app.voice import VoiceService
 
 app = FastAPI(title="Joanna — Assistente de Agenda")
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
 calendar = CalendarService()
 agent = CalendarAgent(calendar)
+voice = VoiceService()
 oauth_states: set[str] = set()
-pending_actions: dict[str, dict] = {}
+# Estado por sessão de conversa: {"pending": {...}, "response_id": "..."}.
+# "response_id" encadeia os turnos para a assistente lembrar do contexto.
+sessions: dict[str, dict] = {}
 
 
 class ChatRequest(BaseModel):
@@ -139,23 +144,53 @@ def google_callback(code: str, state: str):
     return RedirectResponse("/")
 
 
-@app.post("/api/chat")
-def chat(body: ChatRequest):
+def handle_message(raw_message: str, session_id: str) -> str:
+    """Fluxo de conversa compartilhado pelas rotas de texto e de voz."""
     if not calendar.is_connected():
         raise HTTPException(400, "Conecte seu Google Calendar antes de conversar com a assistente.")
-    message = body.message.strip()
+    message = raw_message.strip()
     if not message:
         raise HTTPException(422, "A mensagem não pode estar vazia.")
-    pending = pending_actions.setdefault(body.session_id, {})
+    state = sessions.setdefault(session_id, {})
+    pending = state.setdefault("pending", {})
     event = pending.get("delete_event")
     if event and is_confirmation(message):
         calendar.delete_event(event["id"])
         pending.pop("delete_event", None)
-        return {"reply": f"Pronto, excluí o evento '{event['title']}'."}
+        return f"Pronto, excluí o evento '{event['title']}'."
     if event and is_rejection(message):
         pending.pop("delete_event", None)
-        return {"reply": "Tudo bem, mantive o evento."}
+        return "Tudo bem, mantive o evento."
     try:
-        return {"reply": agent.chat(message, pending)}
+        reply, response_id = agent.chat(message, pending, state.get("response_id"))
     except Exception as exc:
         raise HTTPException(502, f"Não consegui processar o pedido: {exc}") from exc
+    state["response_id"] = response_id
+    return reply
+
+
+@app.post("/api/chat")
+def chat(body: ChatRequest):
+    return {"reply": handle_message(body.message, body.session_id)}
+
+
+@app.post("/api/voice")
+async def voice_chat(session_id: str = Form(...), audio: UploadFile = File(...)):
+    if not calendar.is_connected():
+        raise HTTPException(400, "Conecte seu Google Calendar antes de conversar com a assistente.")
+    raw = await audio.read()
+    if not raw:
+        raise HTTPException(422, "Áudio vazio.")
+    try:
+        transcript = voice.transcribe(raw, audio.filename or "audio.webm")
+    except Exception as exc:
+        raise HTTPException(502, f"Não consegui transcrever o áudio: {exc}") from exc
+    if not transcript:
+        raise HTTPException(422, "Não entendi o áudio. Pode repetir?")
+    reply = handle_message(transcript, session_id)
+    audio_b64: str | None = None
+    try:
+        audio_b64 = base64.b64encode(voice.synthesize(reply)).decode("ascii")
+    except Exception:
+        audio_b64 = None  # se a síntese falhar, ainda devolvemos o texto
+    return {"transcript": transcript, "reply": reply, "audio": audio_b64}

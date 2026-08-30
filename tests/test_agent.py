@@ -18,8 +18,22 @@ def test_agent_interprets_simple_query_with_tool_call():
         def create(self, **kwargs): self.calls.append(kwargs); return first if len(self.calls) == 1 else second
     responses = Responses()
     agent = CalendarAgent(Calendar(), client=SimpleNamespace(responses=responses))
-    assert agent.chat("O que eu tenho amanhã?", {}) == "Você tem uma reunião."
+    reply, response_id = agent.chat("O que eu tenho amanhã?", {})
+    assert reply == "Você tem uma reunião."
+    assert response_id == "r2"
     assert '"events"' in responses.calls[1]["input"][0]["output"]
+
+
+def test_agent_threads_previous_response_id_for_memory():
+    done = SimpleNamespace(output=[], id="r9", output_text="Feito.")
+    class Responses:
+        def __init__(self): self.calls = []
+        def create(self, **kwargs): self.calls.append(kwargs); return done
+    responses = Responses()
+    agent = CalendarAgent(Calendar(), client=SimpleNamespace(responses=responses))
+    _, response_id = agent.chat("e depois disso?", {}, previous_response_id="r8")
+    assert responses.calls[0]["previous_response_id"] == "r8"
+    assert response_id == "r9"
 
 
 def test_delete_requires_confirmation_before_execution():
