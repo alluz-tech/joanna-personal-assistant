@@ -22,22 +22,31 @@ export function initChat({ app }) {
     })
     .catch(() => {});
 
-  // Libera a reprodução automática de áudio: o primeiro gesto do usuário
-  // (clique em gravar/enviar) "desbloqueia" o autoplay para as respostas faladas.
+  // Libera a reprodução automática de áudio no celular (iOS/Safari em especial):
+  // o iOS só permite tocar um <audio> sem gesto do usuário depois que ESSE MESMO
+  // elemento já tocou uma vez durante um gesto. Por isso usamos um único elemento
+  // reaproveitado para todas as respostas e o "destravamos" no primeiro toque.
+  const SILENCE =
+    'data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA';
+  const replyAudio = new Audio();
+  replyAudio.preload = 'auto';
   let audioArmed = false;
-  const audioPrimer = new Audio(
-    'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=',
-  );
   function armAudio() {
     if (audioArmed) return;
     audioArmed = true;
-    audioPrimer
+    const realSrc = replyAudio.src;
+    replyAudio.src = SILENCE;
+    replyAudio
       .play()
       .then(() => {
-        audioPrimer.pause();
-        audioPrimer.currentTime = 0;
+        replyAudio.pause();
+        replyAudio.currentTime = 0;
+        if (realSrc) replyAudio.src = realSrc;
       })
-      .catch(() => {});
+      .catch(() => {
+        audioArmed = false;
+        if (realSrc) replyAudio.src = realSrc;
+      });
   }
 
   // Alterna entre o botão de microfone (campo vazio) e o de enviar (com texto).
@@ -62,19 +71,34 @@ export function initChat({ app }) {
   }
 
   function buildAudioControl(url) {
-    const audio = new Audio(url);
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'replay-btn';
     btn.textContent = '▶ Ouvir';
+
+    const isCurrent = () => replyAudio.src === url;
+    const sync = () => {
+      btn.textContent = isCurrent() && !replyAudio.paused ? '❚❚ Pausar' : '▶ Ouvir';
+    };
     btn.addEventListener('click', () => {
-      if (audio.paused) audio.play();
-      else audio.pause();
+      if (isCurrent() && !replyAudio.paused) {
+        replyAudio.pause();
+        return;
+      }
+      if (!isCurrent()) {
+        replyAudio.src = url;
+        replyAudio.currentTime = 0;
+      }
+      replyAudio.play().catch(() => {});
     });
-    audio.addEventListener('play', () => (btn.textContent = '❚❚ Pausar'));
-    audio.addEventListener('pause', () => (btn.textContent = '▶ Ouvir'));
-    audio.addEventListener('ended', () => (btn.textContent = '▶ Ouvir'));
-    audio.play().catch(() => {}); // autoplay; ignora bloqueio do navegador
+    replyAudio.addEventListener('play', sync);
+    replyAudio.addEventListener('pause', sync);
+    replyAudio.addEventListener('ended', sync);
+
+    // Autoplay: reaproveita o elemento já destravado pelo gesto de enviar.
+    replyAudio.src = url;
+    replyAudio.currentTime = 0;
+    replyAudio.play().catch(() => {}); // se o navegador bloquear, o botão continua valendo
     return btn;
   }
 
