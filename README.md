@@ -12,7 +12,9 @@ Uma secretária digital simples: converse em português, consulte o Google Calen
   Durante a gravação aparecem dois botões: **enviar** (avião de papel) ou **cancelar** (X).
   A Joanna transcreve o áudio (`OPENAI_TRANSCRIBE_MODEL`), passa pelo mesmo agente da conversa
   por texto e responde também em áudio (`OPENAI_TTS_MODEL` / `OPENAI_TTS_VOICE`), que **toca
-  automaticamente**; um botão permite reouvir.
+  automaticamente**; um botão permite reouvir. Antes de falar, datas e horários abreviados
+  são expandidos (`31/08` → "31 de agosto", `14h30` → "14 horas e 30") para o TTS não
+  soletrar a pontuação. O texto exibido na conversa continua no formato curto.
 - **Agenda**: uma segunda tela (navegação no topo, SPA) com o calendário estilo Google Agenda
   nas visões **Mês**, **Semana** e **Dia**, filtros (busca livre, participante, faixa de horário,
   intervalo de datas, só dia inteiro, só com participantes) e criação/edição/exclusão direto
