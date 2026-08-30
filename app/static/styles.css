@@ -126,6 +126,109 @@
   --ring: 0 0 0 3px rgba(56, 189, 248, .32);
 }
 
+/* ============================================================
+   Tela de acesso (PIN)
+   ============================================================ */
+body.locked { overflow: hidden; }
+
+#lock-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+#lock-screen::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(46vw 40vw at 50% 26%, var(--aura-1), transparent 66%),
+    radial-gradient(40vw 38vw at 12% 90%, var(--aura-2), transparent 60%);
+}
+.lock-card {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 340px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+.lock-orb {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+  background: radial-gradient(circle at 42% 38%, #ffffff 0%, #86dbff 16%, #3b82f6 42%, #7c3aed 68%, #0b1b3a 100%);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .5), 0 0 54px -8px var(--glow-1), 0 0 26px -6px var(--glow-2);
+  animation: orb-breathe 6s ease-in-out infinite;
+}
+.lock-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+.lock-sub { color: var(--text-muted); font-size: 13.5px; }
+
+.pin-dots { display: flex; gap: 12px; margin: 18px 0 4px; }
+.pin-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  transition: background .12s, border-color .12s, transform .12s;
+}
+.pin-dot.filled {
+  background: var(--accent-grad);
+  border-color: transparent;
+  transform: scale(1.12);
+}
+
+.lock-error { min-height: 18px; color: var(--danger-text); font-size: 12.5px; }
+
+.lock-keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 10px;
+  width: 100%;
+  max-width: 260px;
+}
+.lock-keys-gap { visibility: hidden; }
+.lock-keys button {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--glass-2);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  transition: background .12s, transform .06s, border-color .12s;
+}
+.lock-keys button:hover { border-color: var(--accent); }
+.lock-keys button:active { transform: scale(.94); background: var(--surface-3); }
+.lock-key-del { font-size: 18px; color: var(--text-muted); }
+
+#lock-screen.checking { opacity: .7; pointer-events: none; }
+#lock-screen.ok { opacity: 0; transform: scale(1.03); transition: opacity .2s, transform .2s; }
+#lock-screen.shake .lock-card { animation: lock-shake .4s ease; }
+@keyframes lock-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lock-orb { animation: none; }
+  #lock-screen.shake .lock-card { animation: none; }
+}
+
 /* ---------- Reset ---------- */
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }

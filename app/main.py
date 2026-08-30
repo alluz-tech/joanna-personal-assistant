@@ -5,19 +5,32 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 load_dotenv()
 
+from app import auth
 from app.agent import CalendarAgent
 from app.calendar_service import CalendarService
 from app.voice import VoiceService
 
 app = FastAPI(title="Joanna — Assistente de Agenda")
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
+
+
+@app.middleware("http")
+async def pin_gate(request: Request, call_next):
+    """Exige o PIN nas rotas de dados; o restante (tela de acesso, estáticos) é livre."""
+    path = request.url.path
+    if path.startswith("/api") or path.startswith("/auth/google"):
+        if not auth.token_valid(request.cookies.get(auth.COOKIE_NAME)):
+            return JSONResponse({"detail": "Acesso bloqueado. Digite o código."}, status_code=401)
+    return await call_next(request)
+
+
 calendar = CalendarService()
 agent = CalendarAgent(calendar)
 voice = VoiceService()
@@ -30,6 +43,10 @@ sessions: dict[str, dict] = {}
 class ChatRequest(BaseModel):
     message: str
     session_id: str
+
+
+class UnlockRequest(BaseModel):
+    pin: str
 
 
 class EventPayload(BaseModel):
@@ -66,6 +83,22 @@ def is_rejection(text: str) -> bool:
 @app.get("/", include_in_schema=False)
 def index():
     return FileResponse(Path(__file__).parent / "static" / "index.html")
+
+
+@app.post("/auth/unlock")
+def unlock(body: UnlockRequest):
+    if not auth.check_pin(body.pin):
+        raise HTTPException(401, "Código incorreto.")
+    response = JSONResponse({"ok": True})
+    response.set_cookie(
+        auth.COOKIE_NAME,
+        auth.issue_token(),
+        max_age=auth.MAX_AGE,
+        httponly=True,
+        samesite="lax",
+        path="/",
+    )
+    return response
 
 
 @app.get("/api/auth-status")

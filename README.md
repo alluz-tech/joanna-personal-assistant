@@ -17,6 +17,10 @@ Uma secretária digital simples: converse em português, consulte o Google Calen
   nas visões **Mês**, **Semana** e **Dia**, filtros (busca livre, participante, faixa de horário,
   intervalo de datas, só dia inteiro, só com participantes) e criação/edição/exclusão direto
   pelo calendário — clique num horário para criar, num evento para editar.
+- **Acesso por PIN**: a cada carregamento da página aparece um teclado numérico. Digite o
+  código (`JOANNA_PIN`, padrão `278395`) para liberar o app. Sem o PIN, as rotas de dados
+  (`/api/...` e o OAuth) respondem `401`. A liberação é um cookie de sessão assinado, com
+  segredo sorteado a cada início do servidor — reiniciar ou fechar o navegador pede o PIN de novo.
 - Trata horários no fuso `America/Sao_Paulo`.
 - Interface limpa com **tema claro/escuro** (segue o sistema; botão no canto superior direito
   alterna e memoriza a preferência) e layout responsivo para celular e tablet.
@@ -52,6 +56,8 @@ cp .env.example .env
 Edite `.env` e preencha `OPENAI_API_KEY`, `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`. Mantenha `GOOGLE_REDIRECT_URI` igual à URI cadastrada no Google Cloud. Para execução local, use `http://localhost:8000/auth/google/callback`. Você pode alterar `OPENAI_MODEL` para um modelo disponível na sua conta.
 
 Para a conversa por voz, `OPENAI_TRANSCRIBE_MODEL`, `OPENAI_TTS_MODEL` e `OPENAI_TTS_VOICE` são opcionais e já têm padrões (`gpt-4o-mini-transcribe`, `gpt-4o-mini-tts`, `shimmer`). O microfone exige um contexto seguro no navegador (`localhost` ou HTTPS).
+
+`JOANNA_PIN` é o código da tela de acesso (padrão `278395`). Troque por um código só seu — mantê-lo no `.env` evita deixá-lo no código versionado.
 
 ## 4. Executar localmente
 
