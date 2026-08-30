@@ -3,10 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#fafaf8" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0e1110" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f3faf8" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#061316" media="(prefers-color-scheme: dark)">
     <title>Joanna — Assistente de agenda</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap">
     <script>try{var t=localStorage.getItem('joannaTheme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}</script>
     <link rel="stylesheet" href="/static/styles.css">
   </head>
@@ -42,7 +45,8 @@
       <section id="view-conversa" class="view" aria-labelledby="conversa-title">
         <div class="chat-shell">
           <div class="chat-welcome" id="chat-welcome">
-            <span class="joanna-avatar" aria-hidden="true"><img src="/static/joanna.png" alt="" onerror="this.remove()"></span>
+            <span class="joanna-avatar" aria-hidden="true"><img alt="" width="120" height="120"></span>
+            <p class="eyebrow"><span aria-hidden="true">✦</span> Joanna online</p>
             <h1 id="conversa-title">Olá! Eu sou a <strong>Joanna</strong></h1>
             <p>Sua assistente de agenda. Posso consultar compromissos, criar eventos e organizar a sua semana — é só pedir.</p>
             <div class="chat-suggestions" id="chat-suggestions">

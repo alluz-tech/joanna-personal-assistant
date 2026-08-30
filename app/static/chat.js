@@ -7,6 +7,16 @@ export function initChat({ app }) {
   const sessionId =
     localStorage.joannaSession || (localStorage.joannaSession = crypto.randomUUID());
 
+  // Mostra app/static/joanna.png como rosto da Joanna se o arquivo existir.
+  const avatar = document.querySelector('.joanna-avatar');
+  fetch('/static/joanna.png', { method: 'HEAD' })
+    .then((r) => {
+      if (!r.ok || !avatar) return;
+      avatar.classList.add('has-img');
+      avatar.querySelector('img').src = '/static/joanna.png';
+    })
+    .catch(() => {});
+
   function addMessage(kind, text) {
     if (welcome) welcome.hidden = true;
     const el = document.createElement('p');
