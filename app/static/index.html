@@ -14,7 +14,38 @@
     <script>try{var t=localStorage.getItem('joannaTheme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}</script>
     <link rel="stylesheet" href="/static/styles.css">
   </head>
-  <body>
+  <body class="locked">
+    <div id="lock-screen" role="dialog" aria-modal="true" aria-label="Código de acesso">
+      <div class="lock-card">
+        <span class="lock-orb" aria-hidden="true"></span>
+        <h1 class="lock-title">Joanna</h1>
+        <p class="lock-sub">Digite o código de acesso</p>
+        <div class="pin-dots" aria-hidden="true">
+          <span class="pin-dot"></span>
+          <span class="pin-dot"></span>
+          <span class="pin-dot"></span>
+          <span class="pin-dot"></span>
+          <span class="pin-dot"></span>
+          <span class="pin-dot"></span>
+        </div>
+        <p id="lock-error" class="lock-error" role="alert"></p>
+        <div id="lock-keys" class="lock-keys">
+          <button type="button" data-key="1">1</button>
+          <button type="button" data-key="2">2</button>
+          <button type="button" data-key="3">3</button>
+          <button type="button" data-key="4">4</button>
+          <button type="button" data-key="5">5</button>
+          <button type="button" data-key="6">6</button>
+          <button type="button" data-key="7">7</button>
+          <button type="button" data-key="8">8</button>
+          <button type="button" data-key="9">9</button>
+          <span class="lock-keys-gap" aria-hidden="true"></span>
+          <button type="button" data-key="0">0</button>
+          <button type="button" data-key="del" class="lock-key-del" aria-label="Apagar">⌫</button>
+        </div>
+      </div>
+    </div>
+
     <header class="topbar">
       <a class="brand" href="#/conversa" aria-label="Joanna, início">
         <span class="brand-mark"><img src="/static/logo.png" alt="" width="34" height="34" onerror="this.remove()"></span>
@@ -214,6 +245,6 @@
       </form>
     </div>
 
-    <script type="module" src="/static/app.js"></script>
+    <script type="module" src="/static/lock.js"></script>
   </body>
 </html>
