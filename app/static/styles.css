@@ -387,7 +387,7 @@ footer {
   background: radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .6), transparent 42%);
 }
 .joanna-avatar img { display: none; }
-.joanna-avatar.has-img img { display: block; position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: cover; }
+.joanna-avatar.has-img img { display: block; position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
 .joanna-avatar.has-img::before, .joanna-avatar.has-img::after { display: none; }
 @keyframes orb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
 @keyframes orb-spin { to { transform: rotate(360deg); } }
