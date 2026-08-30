@@ -1,0 +1,14 @@
+# Mantém o contexto de build enxuto (o Dockerfile só usa requirements.txt e app/).
+.git
+.github
+.venv
+data
+tests
+scripts
+deploy
+*.md
+__pycache__
+*.py[cod]
+.pytest_cache
+.env
+.env.*
