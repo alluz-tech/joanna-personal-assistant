@@ -1,0 +1,74 @@
+name: Deploy
+
+# Deploy automático para a VPS a cada push na main.
+# Também pode ser disparado manualmente em Actions → Deploy → Run workflow.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          script_stop: true
+          command_timeout: 15m
+          script: |
+            set -euo pipefail
+            cd ~/apps/joanna-assistant
+
+            echo "::group::Atualizando código (origin/main)"
+            git fetch --prune origin
+            git reset --hard origin/main
+            git --no-pager log -1 --oneline
+            echo "::endgroup::"
+
+            echo "::group::Build e subida dos containers"
+            docker compose up --build -d --remove-orphans
+            echo "::endgroup::"
+
+            echo "::group::Health check"
+            ok=""
+            for i in $(seq 1 20); do
+              if curl -fsS http://127.0.0.1:5089/api/config >/dev/null 2>&1; then
+                ok=1; break
+              fi
+              echo "tentativa $i/20…"; sleep 3
+            done
+            if [ -z "$ok" ]; then
+              echo "✗ health check falhou — a aplicação não respondeu em http://127.0.0.1:5089"
+              docker compose ps
+              docker compose logs --tail=80 app || true
+              exit 1
+            fi
+            echo "✓ Joanna respondendo"
+            echo "::endgroup::"
+
+            docker image prune -f || true
