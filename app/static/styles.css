@@ -209,13 +209,13 @@ img { max-width: 100%; display: block; }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
 .brand-mark {
   width: 34px; height: 34px; flex: none;
-  display: grid; place-items: center;
-  border-radius: 10px;
+  display: block;
+  border-radius: 50%;
+  overflow: hidden;
   background: var(--accent-grad);
-  color: #fff;
   box-shadow: 0 6px 18px -5px var(--glow-1);
 }
-.brand-mark svg { width: 19px; height: 19px; }
+.brand-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .brand-name { font-family: var(--font-display); font-weight: 600; font-size: 18px; letter-spacing: -.02em; }
 
 .main-nav {
