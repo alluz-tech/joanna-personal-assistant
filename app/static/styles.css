@@ -419,6 +419,27 @@ footer {
   border-bottom-left-radius: 5px;
 }
 
+/* Joanna "digitando…" */
+.assistant.typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 14px;
+}
+.assistant.typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  animation: joanna-typing 1.2s infinite ease-in-out;
+}
+.assistant.typing span:nth-child(2) { animation-delay: .16s; }
+.assistant.typing span:nth-child(3) { animation-delay: .32s; }
+@keyframes joanna-typing {
+  0%, 65%, 100% { opacity: .35; transform: translateY(0); }
+  32% { opacity: 1; transform: translateY(-3px); }
+}
+
 #chat-form {
   display: flex;
   gap: 8px;
@@ -828,4 +849,5 @@ footer {
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
+  .assistant.typing span { animation: none; opacity: .55; }
 }
