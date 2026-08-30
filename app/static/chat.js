@@ -26,11 +26,23 @@ export function initChat({ app }) {
     el.scrollIntoView({ block: 'end' });
   }
 
+  function showTyping() {
+    if (welcome) welcome.hidden = true;
+    const el = document.createElement('div');
+    el.className = 'assistant typing';
+    el.setAttribute('aria-label', 'Joanna está digitando');
+    el.innerHTML = '<span></span><span></span><span></span>';
+    messages.append(el);
+    el.scrollIntoView({ block: 'end' });
+    return el;
+  }
+
   async function send(message) {
     if (!message) return;
     addMessage('user', message);
     input.value = '';
     input.disabled = true;
+    const typing = showTyping();
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -42,6 +54,7 @@ export function initChat({ app }) {
     } catch {
       addMessage('assistant', 'Não foi possível falar com o servidor.');
     } finally {
+      typing.remove();
       input.disabled = false;
       input.focus();
     }
