@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#f4f2fe" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0a0713" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#eef4fb" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#061320" media="(prefers-color-scheme: dark)">
     <title>Joanna — Assistente de agenda</title>
     <link rel="icon" type="image/png" href="/static/logo.png">
     <link rel="apple-touch-icon" href="/static/logo.png">
@@ -44,6 +44,19 @@
       <section id="view-conversa" class="view" aria-labelledby="conversa-title">
         <div class="chat-shell">
           <div class="chat-welcome" id="chat-welcome">
+            <svg class="siri-wave" viewBox="0 0 1200 140" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="siriwave" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#22d3ee" stop-opacity="0"/>
+                  <stop offset="0.22" stop-color="#22d3ee"/>
+                  <stop offset="0.5" stop-color="#a855f7"/>
+                  <stop offset="0.78" stop-color="#f59e0b"/>
+                  <stop offset="1" stop-color="#f59e0b" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 70 C 120 70 160 26 240 26 C 320 26 320 114 400 114 C 480 114 500 40 600 40 C 700 40 720 100 800 100 C 880 100 900 30 1000 30 C 1080 30 1100 70 1200 70" fill="none" stroke="url(#siriwave)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M0 70 C 140 70 180 50 260 50 C 340 50 340 92 420 92 C 500 92 520 58 620 58 C 720 58 740 84 820 84 C 900 84 920 54 1020 54 C 1100 54 1120 70 1200 70" fill="none" stroke="url(#siriwave)" stroke-width="2" stroke-opacity="0.5"/>
+            </svg>
             <span class="joanna-avatar" aria-hidden="true"><img alt="" width="120" height="120"></span>
             <p class="eyebrow"><span aria-hidden="true">✦</span> Joanna online</p>
             <h1 id="conversa-title">Olá! Eu sou a <strong>Joanna</strong></h1>

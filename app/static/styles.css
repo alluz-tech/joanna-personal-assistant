@@ -1,45 +1,45 @@
 /* ============================================================
    Joanna — assistente de agenda
-   Visual futurista: violeta/magenta, vidro fosco, auras de luz.
+   Visual "Siri": fundo azul profundo, orbe e elementos coloridos.
    Tema claro/escuro, responsivo para mobile/tablet.
    ============================================================ */
 
 /* ---------- Tokens: tema claro ---------- */
 :root {
-  --bg: #f4f2fe;
-  --aura-1: rgba(139, 92, 246, .20);
-  --aura-2: rgba(236, 72, 153, .16);
-  --aura-3: rgba(56, 128, 246, .12);
-  --glow-1: rgba(139, 92, 246, .35);
-  --glow-2: rgba(236, 72, 153, .28);
+  --bg: #eef4fb;
+  --aura-1: rgba(0, 160, 255, .16);
+  --aura-2: rgba(236, 64, 160, .12);
+  --aura-3: rgba(52, 211, 153, .10);
+  --glow-1: rgba(56, 132, 255, .32);
+  --glow-2: rgba(236, 64, 160, .24);
 
   --glass: rgba(255, 255, 255, .72);
   --glass-2: rgba(255, 255, 255, .55);
-  --surface-2: #efe9fb;
-  --surface-3: #e6dcf8;
-  --border: rgba(124, 92, 200, .18);
-  --border-strong: rgba(124, 92, 200, .32);
+  --surface-2: #e4eef9;
+  --surface-3: #d8e6f5;
+  --border: rgba(70, 120, 180, .18);
+  --border-strong: rgba(70, 120, 180, .32);
 
-  --text: #1b1430;
-  --text-muted: #64597f;
-  --text-faint: #9a8fb8;
+  --text: #0e2136;
+  --text-muted: #51677f;
+  --text-faint: #8ba0b8;
 
-  --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-  --accent-soft: #efe6fe;
-  --accent-text: #6b21a8;
-  --accent-grad: linear-gradient(120deg, #6366f1, #a855f7 55%, #ec4899);
+  --accent: #0ea5e9;
+  --accent-hover: #0284c7;
+  --accent-soft: #e0f2fe;
+  --accent-text: #0369a1;
+  --accent-grad: linear-gradient(120deg, #06b6d4, #3b82f6 38%, #8b5cf6 68%, #ec4899);
   --on-accent: #ffffff;
 
-  --danger: #d1435b;
+  --danger: #e0455f;
   --danger-soft: #fce7ec;
   --danger-text: #a5304a;
 
   --top-highlight: rgba(255, 255, 255, .7);
-  --shadow-sm: 0 1px 2px rgba(30, 18, 60, .06);
-  --shadow-md: 0 10px 34px rgba(60, 30, 110, .12);
-  --shadow-lg: 0 28px 70px rgba(50, 22, 100, .22);
-  --ring: 0 0 0 3px rgba(124, 58, 237, .22);
+  --shadow-sm: 0 1px 2px rgba(15, 35, 60, .06);
+  --shadow-md: 0 10px 34px rgba(20, 50, 90, .12);
+  --shadow-lg: 0 28px 70px rgba(15, 40, 80, .22);
+  --ring: 0 0 0 3px rgba(14, 165, 233, .24);
 
   --r-sm: 9px;
   --r-md: 13px;
@@ -57,73 +57,73 @@
 /* ---------- Tokens: tema escuro ---------- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0a0713;
-    --aura-1: rgba(139, 92, 246, .34);
-    --aura-2: rgba(236, 72, 153, .26);
-    --aura-3: rgba(56, 128, 246, .20);
-    --glow-1: rgba(139, 92, 246, .5);
-    --glow-2: rgba(236, 72, 153, .4);
+    --bg: #061320;
+    --aura-1: rgba(38, 150, 255, .30);
+    --aura-2: rgba(236, 64, 160, .22);
+    --aura-3: rgba(45, 212, 191, .16);
+    --glow-1: rgba(56, 140, 255, .55);
+    --glow-2: rgba(236, 64, 160, .42);
 
-    --glass: rgba(26, 20, 46, .58);
-    --glass-2: rgba(30, 23, 52, .42);
-    --surface-2: rgba(43, 33, 68, .55);
-    --surface-3: rgba(54, 42, 82, .5);
-    --border: rgba(168, 139, 250, .16);
-    --border-strong: rgba(168, 139, 250, .3);
+    --glass: rgba(13, 30, 49, .58);
+    --glass-2: rgba(16, 35, 56, .44);
+    --surface-2: rgba(24, 47, 74, .55);
+    --surface-3: rgba(31, 58, 90, .5);
+    --border: rgba(120, 180, 240, .16);
+    --border-strong: rgba(120, 180, 240, .3);
 
-    --text: #f2edff;
-    --text-muted: #a99fc9;
-    --text-faint: #766a95;
+    --text: #eef6ff;
+    --text-muted: #9fb6d0;
+    --text-faint: #647f9c;
 
-    --accent: #a855f7;
-    --accent-hover: #b975f9;
-    --accent-soft: rgba(168, 85, 247, .16);
-    --accent-text: #d3b4ff;
-    --accent-grad: linear-gradient(120deg, #6366f1, #a855f7 55%, #ec4899);
-    --on-accent: #ffffff;
+    --accent: #38bdf8;
+    --accent-hover: #5fcdfb;
+    --accent-soft: rgba(56, 189, 248, .16);
+    --accent-text: #9ad8fb;
+    --accent-grad: linear-gradient(120deg, #22d3ee, #3b82f6 38%, #a855f7 66%, #ec4899);
+    --on-accent: #041525;
 
     --danger: #ff7a92;
     --danger-soft: rgba(255, 122, 146, .16);
     --danger-text: #ffa8b8;
 
-    --top-highlight: rgba(214, 196, 255, .08);
+    --top-highlight: rgba(190, 224, 255, .08);
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
     --shadow-md: 0 14px 40px rgba(0, 0, 0, .5);
     --shadow-lg: 0 30px 74px rgba(0, 0, 0, .62);
-    --ring: 0 0 0 3px rgba(168, 85, 247, .3);
+    --ring: 0 0 0 3px rgba(56, 189, 248, .32);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #0a0713;
-  --aura-1: rgba(139, 92, 246, .34);
-  --aura-2: rgba(236, 72, 153, .26);
-  --aura-3: rgba(56, 128, 246, .20);
-  --glow-1: rgba(139, 92, 246, .5);
-  --glow-2: rgba(236, 72, 153, .4);
-  --glass: rgba(26, 20, 46, .58);
-  --glass-2: rgba(30, 23, 52, .42);
-  --surface-2: rgba(43, 33, 68, .55);
-  --surface-3: rgba(54, 42, 82, .5);
-  --border: rgba(168, 139, 250, .16);
-  --border-strong: rgba(168, 139, 250, .3);
-  --text: #f2edff;
-  --text-muted: #a99fc9;
-  --text-faint: #766a95;
-  --accent: #a855f7;
-  --accent-hover: #b975f9;
-  --accent-soft: rgba(168, 85, 247, .16);
-  --accent-text: #d3b4ff;
-  --accent-grad: linear-gradient(120deg, #6366f1, #a855f7 55%, #ec4899);
-  --on-accent: #ffffff;
+  --bg: #061320;
+  --aura-1: rgba(38, 150, 255, .30);
+  --aura-2: rgba(236, 64, 160, .22);
+  --aura-3: rgba(45, 212, 191, .16);
+  --glow-1: rgba(56, 140, 255, .55);
+  --glow-2: rgba(236, 64, 160, .42);
+  --glass: rgba(13, 30, 49, .58);
+  --glass-2: rgba(16, 35, 56, .44);
+  --surface-2: rgba(24, 47, 74, .55);
+  --surface-3: rgba(31, 58, 90, .5);
+  --border: rgba(120, 180, 240, .16);
+  --border-strong: rgba(120, 180, 240, .3);
+  --text: #eef6ff;
+  --text-muted: #9fb6d0;
+  --text-faint: #647f9c;
+  --accent: #38bdf8;
+  --accent-hover: #5fcdfb;
+  --accent-soft: rgba(56, 189, 248, .16);
+  --accent-text: #9ad8fb;
+  --accent-grad: linear-gradient(120deg, #22d3ee, #3b82f6 38%, #a855f7 66%, #ec4899);
+  --on-accent: #041525;
   --danger: #ff7a92;
   --danger-soft: rgba(255, 122, 146, .16);
   --danger-text: #ffa8b8;
-  --top-highlight: rgba(214, 196, 255, .08);
+  --top-highlight: rgba(190, 224, 255, .08);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
   --shadow-md: 0 14px 40px rgba(0, 0, 0, .5);
   --shadow-lg: 0 30px 74px rgba(0, 0, 0, .62);
-  --ring: 0 0 0 3px rgba(168, 85, 247, .3);
+  --ring: 0 0 0 3px rgba(56, 189, 248, .32);
 }
 
 /* ---------- Reset ---------- */
@@ -140,7 +140,7 @@ body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
-/* auras de luz fixas ao fundo */
+/* fundo azul com clarão central + auras coloridas (pegada Siri) */
 body::before {
   content: "";
   position: fixed;
@@ -148,9 +148,10 @@ body::before {
   z-index: -2;
   pointer-events: none;
   background:
-    radial-gradient(46vw 40vw at 12% 6%, var(--aura-1), transparent 60%),
-    radial-gradient(50vw 44vw at 90% 96%, var(--aura-2), transparent 58%),
-    radial-gradient(38vw 34vw at 62% 40%, var(--aura-3), transparent 62%);
+    radial-gradient(60vw 50vw at 50% 34%, var(--aura-1), transparent 66%),
+    radial-gradient(42vw 40vw at 8% 4%, var(--aura-3), transparent 60%),
+    radial-gradient(48vw 44vw at 94% 92%, var(--aura-2), transparent 58%),
+    radial-gradient(40vw 38vw at 88% 12%, rgba(245, 158, 11, .10), transparent 60%);
 }
 /* granulado sutil por cima */
 body::after {
@@ -354,9 +355,21 @@ footer {
   display: flex;
   flex-direction: column;
 }
-.chat-welcome { text-align: center; padding: 16px 6px 20px; }
+.chat-welcome { text-align: center; padding: 16px 6px 20px; position: relative; }
+.chat-welcome > *:not(.siri-wave) { position: relative; z-index: 1; }
+.siri-wave {
+  position: absolute;
+  left: -6%;
+  width: 112%;
+  top: 40px;
+  height: 130px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .65;
+  filter: drop-shadow(0 0 14px rgba(56, 140, 255, .35));
+}
 
-/* orbe da Joanna */
+/* orbe da Joanna (pegada Siri: anel branco, swirl multicolor) */
 .joanna-avatar {
   display: block;
   width: 96px; height: 96px;
@@ -364,19 +377,21 @@ footer {
   border-radius: 50%;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(circle at 33% 28%, #f0dcff 0%, #b98cf7 30%, #8b3ff0 58%, #4c1d95 100%);
+  background: radial-gradient(circle at 42% 38%, #ffffff 0%, #86dbff 16%, #3b82f6 42%, #7c3aed 68%, #0b1b3a 100%);
   box-shadow:
-    0 0 66px -10px var(--glow-1),
-    0 0 26px -6px var(--glow-2),
-    inset 0 0 28px rgba(255, 255, 255, .22),
-    inset 0 -12px 24px rgba(52, 16, 110, .55);
+    0 0 0 3px rgba(255, 255, 255, .55),
+    0 0 72px -8px var(--glow-1),
+    0 0 32px -6px var(--glow-2),
+    inset 0 0 26px rgba(255, 255, 255, .28);
   animation: orb-breathe 6s ease-in-out infinite;
 }
 .joanna-avatar::before {
   content: "";
   position: absolute;
   inset: -35%;
-  background: conic-gradient(from 0deg, transparent 0deg, rgba(236, 72, 153, .55) 60deg, transparent 130deg, rgba(99, 102, 241, .55) 250deg, transparent 320deg);
+  background: conic-gradient(from 0deg, #22d3ee, #3b82f6, #a855f7, #ec4899, #f59e0b, #34d399, #22d3ee);
+  opacity: .45;
+  mix-blend-mode: screen;
   animation: orb-spin 9s linear infinite;
 }
 .joanna-avatar::after {
@@ -384,7 +399,7 @@ footer {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .6), transparent 42%);
+  background: radial-gradient(circle at 40% 34%, rgba(255, 255, 255, .75), transparent 40%);
 }
 .joanna-avatar img { display: none; }
 .joanna-avatar.has-img img { display: block; position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
