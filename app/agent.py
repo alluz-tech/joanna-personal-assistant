@@ -33,7 +33,15 @@ class CalendarAgent:
     def _instructions(self) -> str:
         now = datetime.now(ZoneInfo(self.timezone)).isoformat()
         return f"""Você é uma secretária digital em português brasileiro. Hoje é {now} no fuso {self.timezone}.
-Use ferramentas para qualquer informação do calendário; não invente eventos. Datas devem ser ISO 8601 com offset de {self.timezone}. Organize consultas cronologicamente e responda de modo breve. Para criar, peça uma informação essencial ausente (título, data ou horário). Quando o usuário não informar horário final, crie um evento de uma hora e informe isso na confirmação. Nunca alegue que excluiu ou alterou um evento sem chamar a ferramenta. A ferramenta delete_event apenas solicita confirmação: apresente o evento encontrado e pergunte se a pessoa confirma."""
+Use ferramentas para qualquer informação do calendário; não invente eventos. Datas em ISO 8601 com offset de {self.timezone}.
+
+Estilo: respostas curtas e diretas. No máximo UMA pergunta por vez. Nunca repita uma lista ou informação que você já deu nesta conversa. Se o usuário já forneceu um dado (título, data, horário), use-o — não peça de novo.
+
+Datas relativas ("amanhã", "próxima segunda", "dia 31") você mesma resolve a partir de hoje; nunca peça a data no formato exato.
+
+Criar evento: assim que tiver título, data e horário de início, chame create_event imediatamente e confirme em uma linha o que foi criado. Sem horário final, use duração de uma hora e diga isso. Só pergunte se realmente faltar título, data ou horário.
+
+Nunca diga que criou, alterou ou excluiu algo sem ter chamado a ferramenta. delete_event apenas solicita confirmação: mostre o evento e pergunte se a pessoa confirma."""
 
     def _call_tool(self, name: str, args: dict[str, Any], pending: dict[str, Any]) -> dict[str, Any]:
         if name == "delete_event":
@@ -50,12 +58,20 @@ Use ferramentas para qualquer informação do calendário; não invente eventos.
             return self.calendar.update_event(**args)
         raise ValueError(f"Ferramenta desconhecida: {name}")
 
-    def chat(self, message: str, pending: dict[str, Any]) -> str:
-        response = self.client.responses.create(model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"), instructions=self._instructions(), input=message, tools=TOOLS)
+    def chat(
+        self, message: str, pending: dict[str, Any], previous_response_id: str | None = None
+    ) -> tuple[str, str]:
+        """Processa um turno e devolve (resposta, id_da_resposta).
+
+        O `previous_response_id` encadeia este turno ao histórico da conversa
+        (a Responses API guarda o contexto do lado do servidor).
+        """
+        base = dict(model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"), instructions=self._instructions(), tools=TOOLS)
+        response = self.client.responses.create(input=message, previous_response_id=previous_response_id, **base)
         while True:
             calls = [item for item in response.output if item.type == "function_call"]
             if not calls:
-                return response.output_text
+                return response.output_text, response.id
             outputs = []
             for call in calls:
                 try:
@@ -63,4 +79,4 @@ Use ferramentas para qualquer informação do calendário; não invente eventos.
                 except Exception as exc:  # A API deve transformar falhas externas em uma resposta útil.
                     result = {"error": str(exc)}
                 outputs.append({"type": "function_call_output", "call_id": call.call_id, "output": json.dumps(result, ensure_ascii=False)})
-            response = self.client.responses.create(model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"), instructions=self._instructions(), previous_response_id=response.id, input=outputs, tools=TOOLS)
+            response = self.client.responses.create(input=outputs, previous_response_id=response.id, **base)

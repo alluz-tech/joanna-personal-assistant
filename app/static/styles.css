@@ -443,9 +443,12 @@ footer {
   max-width: 82%;
   padding: 11px 15px;
   border-radius: 16px;
-  white-space: pre-wrap;
   font-size: 14px;
   line-height: 1.55;
+}
+.user .msg-text, .assistant .msg-text {
+  margin: 0;
+  white-space: pre-wrap;
 }
 .user {
   align-self: flex-end;
@@ -461,6 +464,18 @@ footer {
   color: var(--text);
   border-bottom-left-radius: 5px;
 }
+.voice-pending .msg-text { opacity: .7; font-style: italic; }
+.replay-btn {
+  margin-top: 8px;
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: var(--glass-2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+}
+.replay-btn:hover { border-color: var(--accent); }
 
 /* Joanna "digitando…" */
 .assistant.typing {
@@ -484,6 +499,7 @@ footer {
 }
 
 #chat-form {
+  position: relative;
   display: flex;
   gap: 8px;
   margin-top: 16px;
@@ -514,6 +530,68 @@ footer {
 #chat-form button[type="submit"] svg { width: 18px; height: 18px; }
 #chat-form input:disabled { opacity: .55; }
 .input-hint { text-align: center; color: var(--text-faint); font-size: 11px; margin-top: 10px; }
+
+/* ---------- Botão de microfone (estilo WhatsApp) ---------- */
+.mic-btn {
+  flex: none;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--glass-2);
+  color: var(--text);
+  transition: transform .12s, background .12s, color .12s;
+  touch-action: none;
+}
+.mic-btn svg { width: 19px; height: 19px; }
+.mic-btn:hover { border-color: var(--accent); }
+.mic-btn:disabled { opacity: .45; }
+#chat-form[data-mode="voice"] #send-btn { display: none; }
+#chat-form[data-mode="text"] #mic-btn { display: none; }
+
+#chat-form.recording .mic-btn {
+  background: var(--accent-grad);
+  color: #fff;
+  transform: scale(1.12);
+  animation: mic-pulse 1.3s infinite ease-in-out;
+}
+#chat-form.will-cancel .mic-btn {
+  background: #ef4444;
+  animation: none;
+}
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--glow-1); }
+  50% { box-shadow: 0 0 0 10px transparent; }
+}
+
+.rec-overlay {
+  position: absolute;
+  inset: 16px 60px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--glass-2);
+  border: 1px solid var(--border-strong);
+  font-size: 13px;
+  color: var(--text-faint);
+}
+.rec-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: rec-blink 1s infinite steps(1);
+}
+.rec-time { font-variant-numeric: tabular-nums; color: var(--text); }
+.rec-hint { margin-left: auto; }
+#chat-form.will-cancel .rec-hint { color: #ef4444; font-weight: 600; }
+@keyframes rec-blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: .2; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #chat-form.recording .mic-btn { animation: none; }
+  .rec-dot { animation: none; }
+}
 
 /* ---------- Agenda: cabeçalho ---------- */
 .agenda-topline {
