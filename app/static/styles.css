@@ -531,7 +531,7 @@ footer {
 #chat-form input:disabled { opacity: .55; }
 .input-hint { text-align: center; color: var(--text-faint); font-size: 11px; margin-top: 10px; }
 
-/* ---------- Botão de microfone (estilo WhatsApp) ---------- */
+/* ---------- Gravação de áudio (iniciar → enviar / cancelar) ---------- */
 .mic-btn {
   flex: none;
   width: 44px; height: 44px;
@@ -541,7 +541,6 @@ footer {
   background: var(--glass-2);
   color: var(--text);
   transition: transform .12s, background .12s, color .12s;
-  touch-action: none;
 }
 .mic-btn svg { width: 19px; height: 19px; }
 .mic-btn:hover { border-color: var(--accent); }
@@ -549,27 +548,22 @@ footer {
 #chat-form[data-mode="voice"] #send-btn { display: none; }
 #chat-form[data-mode="text"] #mic-btn { display: none; }
 
-#chat-form.recording .mic-btn {
-  background: var(--accent-grad);
-  color: #fff;
-  transform: scale(1.12);
-  animation: mic-pulse 1.3s infinite ease-in-out;
-}
-#chat-form.will-cancel .mic-btn {
-  background: #ef4444;
-  animation: none;
-}
-@keyframes mic-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 var(--glow-1); }
-  50% { box-shadow: 0 0 0 10px transparent; }
-}
-
 .rec-overlay {
   position: absolute;
-  inset: 16px 60px 0 0;
+  inset: 16px 0 0 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+}
+.rec-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 10px;
+  height: 44px;
   padding: 0 16px;
   border-radius: var(--r-pill);
   background: var(--glass-2);
@@ -577,19 +571,37 @@ footer {
   font-size: 13px;
   color: var(--text-faint);
 }
+.rec-cancel, .rec-send {
+  flex: none;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+}
+.rec-cancel svg, .rec-send svg { width: 18px; height: 18px; }
+.rec-cancel {
+  border: 1px solid var(--border-strong);
+  background: var(--glass-2);
+  color: var(--danger-text);
+}
+.rec-cancel:hover { border-color: var(--danger); }
+.rec-send {
+  background: var(--accent-grad);
+  color: #fff;
+  box-shadow: 0 8px 20px -8px var(--glow-1);
+}
+.rec-send:hover { filter: brightness(1.08); }
 .rec-dot {
   width: 9px; height: 9px;
+  flex: none;
   border-radius: 50%;
   background: #ef4444;
   animation: rec-blink 1s infinite steps(1);
 }
 .rec-time { font-variant-numeric: tabular-nums; color: var(--text); }
 .rec-hint { margin-left: auto; }
-#chat-form.will-cancel .rec-hint { color: #ef4444; font-weight: 600; }
 @keyframes rec-blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: .2; } }
 
 @media (prefers-reduced-motion: reduce) {
-  #chat-form.recording .mic-btn { animation: none; }
   .rec-dot { animation: none; }
 }
 

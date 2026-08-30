@@ -73,16 +73,24 @@
           <form id="chat-form" data-mode="voice">
             <label class="sr-only" for="message">Mensagem para Joanna</label>
             <input id="message" placeholder="Ex.: O que eu tenho amanhã?" autocomplete="off">
-            <button type="button" id="mic-btn" class="mic-btn" aria-label="Manter pressionado para gravar um áudio">
+            <button type="button" id="mic-btn" class="mic-btn" aria-label="Iniciar gravação de áudio">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
             </button>
             <button type="submit" id="send-btn" aria-label="Enviar mensagem">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-5-2Z"/><path d="m12 12 3-3"/></svg>
             </button>
-            <div id="rec-overlay" class="rec-overlay" hidden aria-hidden="true">
-              <span class="rec-dot"></span>
-              <span id="rec-time" class="rec-time">0:00</span>
-              <span id="rec-hint" class="rec-hint">← arraste para cancelar</span>
+            <div id="rec-overlay" class="rec-overlay" hidden>
+              <button type="button" id="rec-cancel" class="rec-cancel" aria-label="Cancelar gravação">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+              <span class="rec-body">
+                <span class="rec-dot"></span>
+                <span id="rec-time" class="rec-time">0:00</span>
+                <span class="rec-hint">Gravando…</span>
+              </span>
+              <button type="button" id="rec-send" class="rec-send" aria-label="Enviar áudio">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-5-2Z"/><path d="m12 12 3-3"/></svg>
+              </button>
             </div>
           </form>
           <p class="input-hint">A Joanna pode cometer erros. Confira os detalhes importantes.</p>

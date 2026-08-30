@@ -8,10 +8,11 @@ Uma secretária digital simples: converse em português, consulte o Google Calen
   criar (`Adicione uma reunião com João amanhã às 14h`), alterar e excluir (com confirmação).
   A conversa mantém o contexto entre as mensagens — você pode responder "sim", "próxima segunda"
   ou "das 16h às 17h" sem repetir o resto.
-- **Voz** (estilo WhatsApp): com o campo de texto vazio, **segure o botão de microfone** para
-  gravar, solte para enviar e arraste para o lado para cancelar. A Joanna transcreve o áudio
-  (`OPENAI_TRANSCRIBE_MODEL`), passa pelo mesmo agente da conversa por texto e responde também
-  em áudio (`OPENAI_TTS_MODEL` / `OPENAI_TTS_VOICE`), com botão para reouvir.
+- **Voz**: com o campo de texto vazio, toque no **botão de microfone** para começar a gravar.
+  Durante a gravação aparecem dois botões: **enviar** (avião de papel) ou **cancelar** (X).
+  A Joanna transcreve o áudio (`OPENAI_TRANSCRIBE_MODEL`), passa pelo mesmo agente da conversa
+  por texto e responde também em áudio (`OPENAI_TTS_MODEL` / `OPENAI_TTS_VOICE`), que **toca
+  automaticamente**; um botão permite reouvir.
 - **Agenda**: uma segunda tela (navegação no topo, SPA) com o calendário estilo Google Agenda
   nas visões **Mês**, **Semana** e **Dia**, filtros (busca livre, participante, faixa de horário,
   intervalo de datas, só dia inteiro, só com participantes) e criação/edição/exclusão direto
